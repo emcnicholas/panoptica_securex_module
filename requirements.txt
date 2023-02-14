@@ -1,0 +1,5 @@
+Authlib
+Flask
+marshmallow
+zappa
+git+https://github.com/CiscoSecurity/tr-05-jwt-generator.git
