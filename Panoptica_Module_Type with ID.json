@@ -1,0 +1,86 @@
+[
+  {
+    "description": "Simplified Cloud-Native Application Security for DevSecOps, Platform, and DevOps teams\nPanoptica makes it easy to secure your containers, APIs, and serverless functions, and manage software bills of materials.",
+    "properties": {
+      "supported-apis": [
+        "health",
+        "deliberate/observables",
+        "observe/observables",
+        "tiles",
+        "tiles/tile",
+        "tiles/tile-data",
+        "refer/observables"
+      ],
+      "auth-type": "configuration-token",
+      "configuration-token-alg": "RS256",
+      "configuration-token-audience": "everyone",
+      "url": "https://ff50-173-75-254-221.ngrok.io"
+    },
+    "capabilities": [
+      {
+        "id": "health",
+        "description": "Check the health of the Panoptica API"
+      },
+      {
+        "id": "deliberate",
+        "description": "Query Panoptica for IP, Hostname, and URLs return Verdicts"
+      },
+      {
+        "id": "observe",
+        "description": "Query Panoptica for IP, Hostname, and URLs return Sightings"
+      },
+      {
+        "id": "tiles",
+        "description": "Panoptica Dashboard Tiles"
+      },
+      {
+        "id": "refer",
+        "description": "Look up this host in Panoptica"
+      }
+    ],
+    "logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOIAAADiCAYAAABTEBvXAAAACXBIWXMAACxLAAAsSwGlPZapAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAABCjSURBVHgB7d1NbBzlGQfwZ2Z3nThJq3y3EQE2B6AnEnMhUiJhlzgViUQSwaE5VECReqqEOTTAoeDQQ6VcSNSekCChOXApSoIEqImDF4lI6YU4nIAcEpIg2thujCB27N2d6fvMeuP1x+7M7M4787wz/59ke20H54P97/N+vxaZ4JPvi9SV6yXHLZKVe5CIP1pF73uuWyTINsu6pp4HE+pR7c11LpNFI+rjBPVvKpEBLJLm1NXVtGrVNrJpH7m0Tf0R1Zu7mgDaN6Ke6SUVzM/ox8kSHdgyQcLICCKH7+cr95NrPYfgQQxKqnX1HlWrJXpq0zUSINkgnhvtVc2Kl9SjXoQPEnKayHmPdv3iNCUomSCevfU82Vz9OIAAEqh+puMcTqpKxhvEoXFV/dxBVD+QSwXSck+QnT9GfWti60vGE8RaE/S4N9oJYITZCrl74wmKgd4g8rRDIa8CiCYomEoFslzu091ctUkXboYWCpcIIQSjuVxMrtL50TdIo+grIqogpJa+6hhtReS+IKogpNZsdTz3nwGKWHRBPD/+hqqvwxgRhdSzcm+ppupbFKFomqbnx46T6z5PANkyQrl8XxTTHJ0FkZem/WzVKUJTFDIrmn5j+0GsLc4eVj9hGwFkWudhbC+ICCHAAp2Fsb3BGm6OIoQADXhEtTBMw7fbGqwMH8TaaFEvAcACKozVyjC1IVwQeYrCpcjnUABSZFs7UxvB+4j/+u9+ytmnCAD8udWXqf+XR4P+8mBB9JatFYaxewIgBMftod0bR4L80mBN03z+FEIIEJKtWpABB2/8g1hbuoYRUoDQVPFyKoF2bbRumtZ2UlwlAGifW+nzO9axdUUsFCJd2AqQSVbhuF8TtXkQ+YAncvcTAHRINVErMy2n/Zo3TYfGrmKABiAyE5TLb2m2U2PpilirhkUCgKisblUVl66IqIYAOjStiosrIqohgC5Nq+LiiohqKFruyldk37xBuZvXqbr5Aao82kPuuvUExliyKs4PoncQMLW1ehz04fDlv/ma8v/+nOzx8UXfdzbfTzPbdyKUplhiHer8IOLsGTH8wtcMQmmEEu3a0Nf4hbkg8oRjtXKbIDG2am4WLl8KHb5mvFD27abKQ48glNIsWG2Tv/eNcnk/2fLuLU07a3yMui5e8Cpg7srXFCXuSy4/+Y73uKrCWOZKiVAKYfcSV8ZZc8kbGuW9hlhJEwOd4QsCoRSArxt/cv2We5/e+8bQqEugTdLhawahTJCVL9KTa77lh7WmKY+WQuSkhq8R/7nqfzaEMmbO9AH13hs9rQXR4sXd6B9GwYTwNYNQxs3qpXlBJGsrQdtMDl8zCGUMLPuJew+99+gfhmZNTqpphgtquuGL1IQvCIQyYrP9xDydvYVjMALKavgaoVJGrFLtUe9VEG27qGYXCZaG8DWHUEbArnIhPJ0nVz2w9N3gbSKELzyEsk2W9SB/UEG0ihgwRfiihFCGYXldQ9U0rSUyixA+/RBKH5blHSrF0xeZumob4UtOYyh5d0hl62O1XSIrVlBmubW9vxadH7ta/yStED7ZMh/KXH6NldY5RITPTJkMpZpLTFUQEb50yUwo0xBEhC8b6qEsb99BqWN6EO3xMeo+dsT7CNnApw5MDrxCbneKKqQKotEz+bz7HCHMFj51YNlHZyhtjA2id6QgmqKZlL94gaypSUoTY4NoTd0hyCYvhJNTlCZYZAogAIIIIACCCCAAggggAIIIIACCCCAAggggAIIIIACCCCAAggggAIIIIACCCCAAggggAIIIIACCCCAAggggAIIIIACCCCAAggggAIIIIACCCCAAggggAIIIIACCCCAAggggAIIIIACCCCAAggggAIIIIACCCCAAggggAIIIIACCCCAAggggAIIIIACCCCAAggggAIIIIACCCCAAggggAIIIIACCCCAAggggAIIIIACCCCAAggggAIIIIACCCCAAggggAIIIIACCCCAAggggAIIIIACCCCAAggggAIIIIECeAAy06vU/UfWhR6i6+QEqb99BjvpoMgQRjJW78rX31jV8jpx162lmzz4vlCZC0xRSwR4fo+Un36GVrx+iwsULZBoEEVKlMZCWemwKBBFSiQO5SoWx69NzZAIEEVJt2Qfv07KPzpB0CCKkXtfHZ7zmqmQYNQWxeGrC2Xz/3BempsianKTcd9e9j2F4AzjdK+juswdJIgQRxHBXrKDy4zuosrWHnPse8D5vxr55nfJfXvICZgcclCnwNMdaNc3x636SBkEEEab3qjnA3v6W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",
+    "org_id": "03a78cc5-9f53-406c-a722-fa78a57c5695",
+    "configuration_spec": [
+      {
+        "key": "custom_Access_key",
+        "required": true,
+        "type": "string",
+        "label": "Access Key",
+        "group": "Panoptica API"
+      },
+      {
+        "key": "custom_Secret_key",
+        "required": true,
+        "type": "string",
+        "label": "Secret Key",
+        "group": "Panoptica API"
+      },
+      {
+        "key": "custom_Hostname",
+        "required": true,
+        "type": "string",
+        "label": "Hostiname",
+        "group": "Panoptica API"
+      }
+    ],
+    "short_description": "Cloud-Native Application Security, Simplified",
+    "title": "Panoptica",
+    "external_references": [
+      {
+        "label": "Free Trial",
+        "link": "https://www.panoptica.app"
+      }
+    ],
+    "id": "856eef81-c179-4e88-aab4-d6d03f3fcc38",
+    "record": "relay-module.module/RelayModule",
+    "user_id": "87b576bc-ed0a-4c16-901a-b2a1763c9d11",
+    "client_id": "client-1bc65cdf-fb09-4bba-a2c6-aa5962421914",
+    "default_name": "Panoptica",
+    "flags": [
+      ""
+    ],
+    "enabled": true,
+    "visibility": "org",
+    "created_at": "2023-02-15T17:31:40.833Z"
+  }
+]

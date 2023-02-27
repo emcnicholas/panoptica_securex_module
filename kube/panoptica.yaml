@@ -1,0 +1,40 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: panoptica
+  #namespace: securex
+  labels:
+    k8s-app: panoptica
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: panoptica
+  template:
+    metadata:
+      name: panoptica
+      labels:
+        k8s-app: panoptica
+    spec:
+      containers:
+      - name: panoptica
+        image: emcnicholas/panoptica-relay:1.0
+        imagePullPolicy: IfNotPresent
+      imagePullSecrets:
+      - name: regcred
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: panoptica-service
+spec:
+  ports:
+  - port: 5000
+    protocol: TCP
+    targetPort: 5000
+    nodePort: 30201
+  selector:
+    k8s-app: panoptica
+  type: NodePort

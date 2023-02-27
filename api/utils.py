@@ -5,12 +5,17 @@ from flask import request, current_app, jsonify
 from api.errors import AuthorizationError, InvalidArgumentError
 from api.escherauth import EscherRequestsAuth
 from datetime import datetime, timedelta
+import time
 import requests
 import json
+import config
 
-access_key = "4441f34a-a7c4-40a9-8d12-daf67d5727cd"
-secret_key = "oL4G1e7s14FmBFcaxAnLMmsq7SEGlHPqxuhJZBqaOUY="
+access_key = config.Config.ACCESS_KEY
+secret_key = config.Config.SECRET_KEY
 
+
+def format_docs(docs):
+    return {'count': len(docs), 'docs': docs}
 
 
 def get_auth_token():
@@ -50,8 +55,11 @@ def get_jwt():
         DecodeError: 'Wrong JWT structure'
     }
     token = get_auth_token()
+    print(token)
     try:
-        return jwt.decode(token, current_app.config['SECRET_KEY'])['key']
+        return jwt.decode(jwt=token, key='cGFub3B0aWNh', algorithms=['hs256'], audience=['everyone'])
+        #return jwt.decode(token, current_app.config['SECRET_KEY'])['key']
+
     except tuple(expected_errors) as error:
         raise AuthorizationError(expected_errors[error.__class__])
 
@@ -84,6 +92,34 @@ def jsonify_errors(data):
     return jsonify({'errors': [data]})
 
 
+def get_timeframe(period):
+    if period == "last_hour":
+        return {
+            'end_time': str(datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")),
+            'start_time': str((datetime.utcnow() - timedelta(hours=1)).strftime("%Y-%m-%dT%H:%M:%SZ"))
+        }
+    elif period == "last_5_minutes":
+        return {
+            'end_time': str(datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")),
+            'start_time': str((datetime.utcnow() - timedelta(minutes=5)).strftime("%Y-%m-%dT%H:%M:%SZ"))
+        }
+    elif period == "last_24_hours":
+        return {
+            'end_time': str(datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")),
+            'start_time': str((datetime.utcnow() - timedelta(hours=24)).strftime("%Y-%m-%dT%H:%M:%SZ"))
+        }
+    elif period == "last_7_days":
+        return {
+            'end_time': str(datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")),
+            'start_time': str((datetime.utcnow() - timedelta(days=7)).strftime("%Y-%m-%dT%H:%M:%SZ"))
+        }
+    else:
+        return {
+            'end_time': str(datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")),
+            'start_time': str((datetime.utcnow() - timedelta(days=30)).strftime("%Y-%m-%dT%H:%M:%SZ"))
+        }
+
+
 def fetch_panoptica_data(
         uri,
         host="securecn.cisco.com",
@@ -105,6 +141,7 @@ def fetch_panoptica_data(
 
     # HTTP Get Request
     response = requests.get(url, headers=headers, auth=auth)
+    print(response)
 
     # If response code is 200, then return the json response
     if response.status_code == 200:
@@ -115,7 +152,8 @@ def fetch_panoptica_data(
 
     # If response code is anything but 200, print error message with response code
     else:
-        print(f"An error has ocurred, while fetching alerts, with the following code {response.status_code}")
+        json_response = {}
+        return json_response
 
 
 def get_vulnerabilities():
@@ -162,19 +200,14 @@ def parse_vulnerability_data(vulnerabilities):
     return vulnerability_list
 
 
-def return_vulnerability_tile_data(vulnerability_list):
+def return_vulnerability_tile_data(vulnerability_list, start_time, end_time):
     vl = vulnerability_list
     pod_unk, pod_low, pod_med, pod_high, pod_crit, sl_unk, sl_low, sl_med, sl_high, sl_crit = vl[0], vl[1], vl[2], vl[3], vl[4], vl[5], vl[6], vl[7], vl[8], vl[9]
     # print(pod_unk, pod_low, pod_med, pod_high, pod_crit, sl_unk, sl_low, sl_med, sl_high, sl_crit)
-    date_format = '%Y-%m-%dT%H:%M:%SZ'
-    datetime_now = datetime.utcnow()
-    datetime_now_str = datetime_now.strftime(date_format)
-    datetime_minus5 = datetime_now - timedelta(minutes=5)
-    datetime_minus5_str = datetime_minus5.strftime(date_format)
     panoptica_vul_data = {
         "valid_time": {
-            "start_time": datetime_minus5_str,
-            "end_time": datetime_now_str
+            "start_time": start_time,
+            "end_time": end_time
         },
         "tile_id": "panoptica_vulnerabilities",
         "keys": [
@@ -191,8 +224,8 @@ def return_vulnerability_tile_data(vulnerability_list):
         "key_type": "string",
         "period": "last_24_hours",
         "observed_time": {
-            "start_time": datetime_minus5_str,
-            "end_time": datetime_now_str
+            "start_time": start_time,
+            "end_time": end_time
         },
         "data": [
             {
@@ -305,12 +338,7 @@ def parse_risk_data(risks):
     return risks_list
 
 
-def return_risk_tile_data(risk_list):
-    date_format = '%Y-%m-%dT%H:%M:%SZ'
-    datetime_now = datetime.utcnow()
-    datetime_now_str = datetime_now.strftime(date_format)
-    datetime_minus5 = datetime_now - timedelta(minutes=5)
-    datetime_minus5_str = datetime_minus5.strftime(date_format)
+def return_risk_tile_data(risk_list, start_time, end_time):
     markdown = [
         "| Type | Name | Risk |",
         "| :-- | --- | --: |"
@@ -332,15 +360,15 @@ def return_risk_tile_data(risk_list):
         markdown.append(md_risk)
     panoptica_risks = {
         "valid_time": {
-            "start_time": datetime_minus5_str,
-            "end_time": datetime_now_str
+            "start_time": start_time,
+            "end_time": end_time
         },
         "tile_id": "panoptica_risks",
         "cache_scope": "user",
         "period": "last_hour",
         "observed_time": {
-            "start_time": datetime_minus5_str,
-            "end_time": datetime_now_str
+            "start_time": start_time,
+            "end_time": end_time
         },
         "data": markdown
     }
@@ -373,7 +401,7 @@ def return_event_tile_data():
             {"key": 1610358772, "value": 5},
         ]
     }
-    print(panoptica_event_data)
+    #print(panoptica_event_data)
     return panoptica_event_data
 
 
@@ -401,12 +429,7 @@ def parse_permissions_data(permissions):
     return permissions_list
 
 
-def return_permissions_tile_data(permissions_list):
-    date_format = '%Y-%m-%dT%H:%M:%SZ'
-    datetime_now = datetime.utcnow()
-    datetime_now_str = datetime_now.strftime(date_format)
-    datetime_minushour = datetime_now - timedelta(hours=1)
-    datetime_minushour_str = datetime_minushour.strftime(date_format)
+def return_permissions_tile_data(permissions_list, start_time, end_time):
     pl = permissions_list
     nr_perm, nr_own, med_perm, med_own, high_perm, high_own, appr_perm, appr_own = pl[0], pl[1], pl[2], pl[3], pl[4], pl[5], pl[6], pl[7]
     panoptica_permissions_data = {
@@ -423,15 +446,15 @@ def return_permissions_tile_data(permissions_list):
             ]
         ],
         "valid_time": {
-            "start_time": datetime_minushour_str,
-            "end_time": datetime_now_str
+            "start_time": start_time,
+            "end_time": end_time
         },
         "tile_id": "panoptica_permissions",
         "cache_scope": "user",
         "period": "last_hour",
         "observed_time": {
-            "start_time": datetime_minushour_str,
-            "end_time": datetime_now_str
+            "start_time": start_time,
+            "end_time": end_time
         },
         "color_scale": "status",
         "data": [
@@ -494,4 +517,370 @@ def return_permissions_tile_data(permissions_list):
         ]
     }
     return panoptica_permissions_data
+
+# Panoptica Internal and External API Risks
+
+
+def get_internal_api_risks():
+    uri = "dashboard/apisec/riskFindings?apiSecSource=INTERNAL"
+    risks = fetch_panoptica_data(uri)
+    return risks
+
+
+def get_external_api_risks():
+    uri = "dashboard/apisec/riskFindings?apiSecSource=EXTERNAL"
+    risks = fetch_panoptica_data(uri)
+    return risks
+
+
+def parse_api_risks(int_risks, ext_risks):
+    internal_api_risks_list = []
+    external_api_risks_list = []
+    i_total, i_norisk, i_low, i_medium, i_high, i_critical = int_risks["total"], int_risks["noKnownRisk"], int_risks["low"], int_risks["medium"], int_risks["high"], int_risks["critical"]
+    internal_api_risks_list.extend([i_total, i_norisk, i_low, i_medium, i_high, i_critical])
+    e_total, e_norisk, e_low, e_medium, e_high, e_critical = ext_risks["total"], ext_risks["noKnownRisk"], ext_risks[
+        "low"], ext_risks["medium"], ext_risks["high"], ext_risks["critical"]
+    external_api_risks_list.extend([e_total, e_norisk, e_low, e_medium, e_high, e_critical])
+    return internal_api_risks_list, external_api_risks_list
+
+
+def return_api_risks_data(int_risks_list, ext_risk_list, start_time, end_time):
+    irl = int_risks_list
+    int_total, int_none, int_low, int_med, int_high, int_crit = irl[0], irl[1], irl[2], irl[3], irl[4], irl[5]
+    erl = ext_risk_list
+    ext_total, ext_none, ext_low, ext_med, ext_high, ext_crit = erl[0], erl[1], erl[2], erl[3], \
+                                                                erl[4], erl[5]
+    api_risk_data = {
+        "valid_time": {
+            "start_time": start_time,
+            "end_time": end_time
+        },
+        "tile_id": "panoptica_api_risks",
+        "keys": [
+            {
+                "key": "internal_apis",
+                "label": "INTERNAL APIs"
+            },
+            {
+                "key": "external_apis",
+                "label": "EXTERNAL APIs"
+            }
+        ],
+        "cache_scope": "user",
+        "key_type": "string",
+        "period": "last_hour",
+        "observed_time": {
+            "start_time": start_time,
+            "end_time": end_time
+        },
+        "data": [
+            {
+                "key": "TOTAL",
+                "value": (int_total + ext_total),
+                "values": [
+                    {
+                        "key": "internal_apis",
+                        "value": int_total,
+                        "link_uri": "https://appsecurity.cisco.com/catalog/risk-findings"
+                    },
+                    {
+                        "key": "external_apis",
+                        "value": ext_total,
+                        "link_uri": "https://appsecurity.cisco.com/catalog/risk-findings"
+                    }
+                ]
+            },
+            {
+                "key": "NO KNOWN RISK",
+                "value": (int_none + ext_none),
+                "values": [
+                    {
+                        "key": "internal_apis",
+                        "value": int_none,
+                        "link_uri": "https://appsecurity.cisco.com/catalog/risk-findings"
+                    },
+                    {
+                        "key": "external_apis",
+                        "value": ext_none,
+                        "link_uri": "https://appsecurity.cisco.com/catalog/risk-findings"
+                    }
+                ]
+            },
+            {
+                "key": "LOW",
+                "value": (int_low + ext_low),
+                "values": [
+                    {
+                        "key": "internal_apis",
+                        "value": int_low,
+                        "link_uri": "https://appsecurity.cisco.com/catalog/risk-findings"
+                    },
+                    {
+                        "key": "external_apis",
+                        "value": ext_low,
+                        "link_uri": "https://appsecurity.cisco.com/catalog/risk-findings"
+                    }
+                ]
+            },
+            {
+                "key": "MEDIUM",
+                "value": (int_med + ext_med),
+                "values": [
+                    {
+                        "key": "internal_apis",
+                        "value": int_med,
+                        "link_uri": "https://appsecurity.cisco.com/catalog/risk-findings"
+                    },
+                    {
+                        "key": "external_apis",
+                        "value": ext_med,
+                        "link_uri": "https://appsecurity.cisco.com/catalog/risk-findings"
+                    }
+                ]
+            },
+            {
+                "key": "HIGH",
+                "value": (int_high + ext_high),
+                "values": [
+                    {
+                        "key": "internal_apis",
+                        "value": int_high,
+                        "link_uri": "https://appsecurity.cisco.com/catalog/risk-findings"
+                    },
+                    {
+                        "key": "external_apis",
+                        "value": ext_high,
+                        "link_uri": "https://appsecurity.cisco.com/catalog/risk-findings"
+                    }
+                ]
+            },
+            {
+                "key": "CRITICAL",
+                "value": (int_crit + ext_crit),
+                "values": [
+                    {
+                        "key": "internal_apis",
+                        "value": int_crit,
+                        "link_uri": "https://appsecurity.cisco.com/catalog/risk-findings"
+                    },
+                    {
+                        "key": "external_apis",
+                        "value": ext_crit,
+                        "link_uri": "https://appsecurity.cisco.com/catalog/risk-findings"
+                    }
+                ]
+            }
+        ]
+    }
+    api_risk_data2 = {
+        "labels": [
+            [
+                "Total",
+                "No Risk",
+                "Low",
+                "Medium",
+                "High",
+                "Critical"
+            ],
+            [
+                "Internal",
+                "External"
+            ]
+        ],
+        "valid_time": {
+            "start_time": start_time,
+            "end_time": end_time
+        },
+        "tile_id": "panoptica_api_risks",
+        "cache_scope": "user",
+        "period": "last_hour",
+        "observed_time": {
+            "start_time": start_time,
+            "end_time": end_time
+        },
+        "color_scale": "status",
+        "data": [
+            {
+                "key": 0,
+                "value": (int_total + ext_total),
+                "segments": [
+                    {
+                        "key": 0,
+                        "value": int_total
+                    },
+                    {
+                        "key": 1,
+                        "value": ext_total
+                    }
+                ]
+            },
+            {
+                "key": 1,
+                "value": (int_none + ext_none),
+                "segments": [
+                    {
+                        "key": 0,
+                        "value": int_none
+                    },
+                    {
+                        "key": 1,
+                        "value": ext_none
+                    }
+                ]
+            },
+            {
+                "key": 2,
+                "value": (int_low + ext_low),
+                "segments": [
+                    {
+                        "key": 0,
+                        "value": int_low
+                    },
+                    {
+                        "key": 1,
+                        "value": ext_low
+                    }
+                ]
+            },
+            {
+                "key": 3,
+                "value": (int_med + ext_med),
+                "segments": [
+                    {
+                        "key": 0,
+                        "value": int_med
+                    },
+                    {
+                        "key": 1,
+                        "value": ext_med
+                    }
+                ]
+            },
+            {
+                "key": 4,
+                "value": (int_high + ext_high),
+                "segments": [
+                    {
+                        "key": 0,
+                        "value": int_high
+                    },
+                    {
+                        "key": 1,
+                        "value": ext_high
+                    },
+                    {
+                        "key": 5,
+                        "value": (int_crit + ext_crit),
+                        "segments": [
+                            {
+                                "key": 0,
+                                "value": int_crit
+                            },
+                            {
+                                "key": 1,
+                                "value": ext_crit
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+    return api_risk_data2
+
+
+def get_internal_risky_findings():
+    uri = "dashboard/apisec/topRiskyFindings?apiSecSource=INTERNAL&maxResults=5"
+    findings = fetch_panoptica_data(uri)
+    return findings
+
+
+def get_external_risky_findings():
+    uri = "dashboard/apisec/topRiskyFindings?apiSecSource=EXTERNAL&maxResults=5"
+    findings = fetch_panoptica_data(uri)
+    return findings
+
+
+def return_internal_risky_data(findings, start_time, end_time):
+    markdown = [
+        "| Finding Name | Risk | Category |",
+        "| :-- | --- | --: |"
+    ]
+    for item in findings["findings"]:
+        fid, name, category = item["id"], item["name"], item["category"]
+        if item["risk"] == "CRITICAL":
+            risk = "💀 CRITICAL"
+        elif item["risk"] == "HIGH":
+            risk = "❗ HIGH"
+        elif item["risk"] == "MEDIUM":
+            risk = "⚠️MEDIUM"
+        elif item["risk"] == "LOW":
+            risk = "⛅ LOW"
+        else:
+            risk = "❓ UNKNOWN"
+        md_findings = f"| [{name}](https://appsecurity.cisco.com/catalog/risk-findings/{fid}) | {risk} | {category} |"
+        markdown.append(md_findings)
+    panoptica_findings = {
+        "valid_time": {
+            "start_time": start_time,
+            "end_time": end_time
+        },
+        "tile_id": "panoptica_int_risky_findings",
+        "cache_scope": "user",
+        "period": "last_hour",
+        "observed_time": {
+            "start_time": start_time,
+            "end_time": end_time
+        },
+        "data": markdown
+    }
+    return panoptica_findings
+
+
+def return_external_risky_data(findings, start_time, end_time):
+    markdown = [
+        "| Finding Name | Risk | Category |",
+        "| :-- | --- | --: |"
+    ]
+    for item in findings["findings"]:
+        fid, name, category = item["id"], item["name"], item["category"]
+        if item["risk"] == "CRITICAL":
+            risk = "💀 CRITICAL"
+        elif item["risk"] == "HIGH":
+            risk = "❗ HIGH"
+        elif item["risk"] == "MEDIUM":
+            risk = "⚠️MEDIUM"
+        elif item["risk"] == "LOW":
+            risk = "⛅ LOW"
+        else:
+            risk = "❓ UNKNOWN"
+        md_findings = f"| [{name}](https://appsecurity.cisco.com/catalog/risk-findings/{fid}) | {risk} | {category} |"
+        #print(md_findings)
+        markdown.append(md_findings)
+    panoptica_findings = {
+        "valid_time": {
+            "start_time": start_time,
+            "end_time": end_time
+        },
+        "tile_id": "panoptica_ext_risky_findings",
+        "cache_scope": "user",
+        "period": "last_hour",
+        "observed_time": {
+            "start_time": start_time,
+            "end_time": end_time
+        },
+        "data": markdown
+    }
+    return panoptica_findings
+
+
+def get_panoptica_events():
+    end_time = str(datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"))
+    #start_time = str((datetime.utcnow() - timedelta(minutes=5)).strftime("%Y-%m-%dT%H:%M:%SZ"))
+    start_time = str((datetime.utcnow() - timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%S.%fZ"))
+    #print(start_time, end_time)
+    uri = f"auditLogs/kubernetes?startTime={start_time}&endTime={end_time}"
+    events = fetch_panoptica_data(uri)
+    #print(events)
+    return events
 

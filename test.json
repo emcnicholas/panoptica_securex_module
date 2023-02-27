@@ -1,0 +1,120 @@
+{
+  "description": "Outgoing connection Sighting",
+  "schema_version": "1.2.1",
+  "relations": [
+    {
+      "origin": "AMP Enrichment Module",
+      "relation": "Connected_To",
+      "source": {
+        "value": "10.100.1.57",
+        "type": "ip"
+      },
+      "related": {
+        "value": "172.16.2.11",
+        "type": "ip"
+      }
+    },
+    {
+      "origin": "AMP Enrichment Module",
+      "relation": "Connected_To",
+      "source": {
+        "value": "3bc9d9e67292b2d4849ad0db1eae86ddedbfc27728cded9cfa614c4939a5d2d4",
+        "type": "sha256"
+      },
+      "related": {
+        "value": "172.16.2.11",
+        "type": "ip"
+      }
+    }
+  ],
+  "observables": [
+    {
+      "value": "172.16.2.11",
+      "type": "ip"
+    }
+  ],
+  "type": "sighting",
+  "source": "AMP Event",
+  "targets": [
+    {
+      "type": "endpoint",
+      "observables": [
+        {
+          "value": "Proto-Host2.proto-vision.com",
+          "type": "hostname",
+          "observable": {
+            "type": "hostname",
+            "value": "Proto-Host2.proto-vision.com",
+            "disposition": 5,
+            "obsListSortOrder": 4,
+            "revListOrder": 4
+          }
+        },
+        {
+          "value": "1a9f2ba8-03df-403b-8914-5213c0374e76",
+          "type": "amp_computer_guid",
+          "observable": {
+            "type": "amp_computer_guid",
+            "value": "1a9f2ba8-03df-403b-8914-5213c0374e76",
+            "disposition": 5,
+            "obsListSortOrder": 4,
+            "revListOrder": 4
+          }
+        },
+        {
+          "value": "10.100.1.57",
+          "type": "ip",
+          "observable": {
+            "type": "ip",
+            "value": "10.100.1.57",
+            "disposition": 5,
+            "obsListSortOrder": 4,
+            "revListOrder": 4
+          }
+        },
+        {
+          "value": "00:50:56:b8:52:1d",
+          "type": "mac_address",
+          "observable": {
+            "type": "mac_address",
+            "value": "00:50:56:b8:52:1d",
+            "disposition": 5,
+            "obsListSortOrder": 4,
+            "revListOrder": 4
+          }
+        }
+      ],
+      "observed_time": {
+        "start_time": "2023-01-23T20:19:56.000Z",
+        "end_time": "2023-01-30T04:39:29.000Z"
+      },
+      "os": "Windows 10 Enterprise"
+    }
+  ],
+  "module": "Secure Endpoint - edmcnich - cisco",
+  "internal": true,
+  "source_uri": "https://console.amp.cisco.com/computers/1a9f2ba8-03df-403b-8914-5213c0374e76/trajectory?q=172.16.2.11",
+  "id": "transient:c1b4ef34-ab9c-442a-a2d7-95ccb361225c",
+  "count": 1,
+  "severity": "Low",
+  "confidence": "High",
+  "observed_time": {
+    "start_time": "2023-01-30T04:39:29.000Z"
+  },
+  "sensor": "endpoint",
+  "observable_type": "ip",
+  "observable_value": "172.16.2.11",
+  "observed_start_time": "2023-01-30T04:39:29Z",
+  "observed_end_time": "2023-01-30T04:39:29Z",
+  "target_count": 1,
+  "obs": "ip:172.16.2.11",
+  "disposition": 1,
+  "disposition_name": "Clean",
+  "malicious": 0,
+  "suspicious": 0,
+  "common": 0,
+  "unknown": 0,
+  "clean": 1,
+  "ctr_hide": false,
+  "ctr_uuid": "5f817640-c0eb-4a20-ab39-c90293e65d1e"
+}
